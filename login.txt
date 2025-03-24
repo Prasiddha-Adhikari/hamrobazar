@@ -1,0 +1,27 @@
+admin : 9855556655
+pwd : password
+
+
+
+//customer
+user : 9846978257
+pwd : password
+
+
+// vendor
+vendor : 9844661122
+pwd : password
+
+all password: password
+
+
+backend files
+//admin
+addcategory
+addsubcategory
+manageusers
+managevendors
+products
+ 
+//vendors
+addproduct

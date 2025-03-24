@@ -19,7 +19,7 @@ const Signup = () => {
   const [selectedCountry, setSelectedCountry] = useState(countryOptions[0]);
   const [formData, setFormData] = useState({
     fullName: "",
-    phone: "",
+    contact: "", // It can be phone or email, depending on user input
     password: "",
   });
 
@@ -27,18 +27,50 @@ const Signup = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleCheckboxChange = () => { 
+  const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isChecked) {
       alert("Please accept the Terms & Conditions.");
       return;
     }
-    // Submit logic here
-    console.log("Form Submitted", formData, selectedCountry);
+
+    const { fullName, contact, password } = formData;
+
+    // If the contact is a phone number, append country code
+    const phoneNumberWithCountryCode = selectedCountry.value + contact;
+
+    try {
+      // Check if contact is a valid phone number or email and send the appropriate data
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/signup.php`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "signup", // Send the action
+          fullName,
+          contact: contact.includes('@') ? contact : phoneNumberWithCountryCode, // Check if contact is an email
+          password,
+          countryCode: selectedCountry.value, // Send country code if needed for phone number
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        alert("User registered successfully!");
+        window.location.href = "/login"; // Redirect to login page after successful signup
+      } else {
+        alert(data.message || "Signup failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error during signup:", error);
+      alert("Server error. Please try again later.");
+    }
   };
 
   return (
@@ -71,7 +103,7 @@ const Signup = () => {
               required
             />
             <div className="border rounded-md">
-            <div className="flex items-center bg-white rounded-md overflow-hidden">
+              <div className="flex items-center bg-white rounded-md overflow-hidden">
                 <Select
                   value={selectedCountry}
                   onChange={setSelectedCountry}
@@ -97,12 +129,15 @@ const Signup = () => {
                     }),
                   }}
                 />
-                {/* Contact Number */}
                 <input
                   type="tel"
                   id="phone"
-                  placeholder="Contact number"
+                  name="contact"
+                  placeholder="Phone number or Email"
+                  value={formData.contact}
+                  onChange={handleInputChange}
                   className="w-[60%] px-4 py-2 border-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
                 />
               </div>
             </div>

@@ -1,10 +1,33 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import hbselect from "../assets/hbselect.png";
 import { FaSearch } from "react-icons/fa";
-import { HiOutlineMenu } from "react-icons/hi";
-import { Link } from "react-router-dom";
 
 function Navbar() {
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("user"));
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Function to check login status
+    const checkLoginStatus = () => {
+      setIsLoggedIn(!!localStorage.getItem("user"));
+    };
+
+    // Listen for changes in localStorage (for multi-tab sync)
+    window.addEventListener("storage", checkLoginStatus);
+
+    return () => {
+      window.removeEventListener("storage", checkLoginStatus);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user"); // Remove user data
+    setIsLoggedIn(false);
+    window.dispatchEvent(new Event("storage")); // Force re-render in all tabs
+    navigate("/"); // Redirect to home
+  };
+
   return (
     <div className="bg-white sticky top-0 z-50 h-[5rem] flex items-center">
       <section className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -16,10 +39,7 @@ function Navbar() {
               alt="Hamro Bazar Logo"
               className="h-6 bg-black rounded-md"
             />
-            <span
-              className="text-sm sm:text-lg font-bold text-gray-800"
-              style={{ fontFamily: "Inter, sans-serif" }}
-            >
+            <span className="text-sm sm:text-lg font-bold text-gray-800">
               <Link to="/">hamrobazar</Link>
             </span>
           </div>
@@ -30,7 +50,6 @@ function Navbar() {
               type="text"
               placeholder="Search for anything"
               className="w-full border-none px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-              style={{ fontFamily: "Inter, sans-serif", fontSize: "12px" }}
             />
             <FaSearch className="text-gray-600 ml-auto mr-2" />
           </div>
@@ -49,12 +68,27 @@ function Navbar() {
             {/* Pipe */}
             <span className="hidden sm:inline-block font-bold text-2xl">|</span>
 
-            <button className="text-gray-600 hover:text-blue-700 px-4 py-2 rounded-md flex items-center">
-              <Link to="/login">Login</Link>
-            </button>
-            <button className="border border-black text-black px-4 py-2 rounded-md hover:text-white hover:bg-black transition duration-300 flex items-center">
-              <Link to="/signup">Sign Up</Link>
-            </button>
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="border border-black text-black px-4 py-2 rounded-md hover:text-white hover:bg-black transition duration-300 flex items-center"
+              >
+                Logout
+              </button>
+            ) : (
+              <>
+                <Link to="/login">
+                  <button className="text-gray-600 hover:text-blue-700 px-4 py-2 rounded-md flex items-center">
+                    Login
+                  </button>
+                </Link>
+                <Link to="/signup">
+                  <button className="border border-black text-black px-4 py-2 rounded-md hover:text-white hover:bg-black transition duration-300 flex items-center">
+                    Sign Up
+                  </button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>

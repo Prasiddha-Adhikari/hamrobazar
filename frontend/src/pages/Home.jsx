@@ -5,7 +5,7 @@ import Latest from "../components/Latest";
 import Ads from "../components/Ads";
 const Home = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-screen-[25%] flex flex-col">
          <TopCategory />
         {/* Main Content Section */}
         <main className="w-full">
